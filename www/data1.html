@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <script type="text/javascript" charset="utf-8" src="components/loader.js"></script>
+    <script type="text/javascript" charset="utf-8">
+    document.addEventListener("deviceready",onDeviceReady,false);
+
+function onDeviceReady()
+{
+    window.alert("Create a database and display the content11");
+    initDB();
+    createTables();
+    window.alert("Create a database and display the content");
+}
+
+errorHandler = function (transaction, error) { 
+    // returns true to rollback the transaction
+    return true;  
+} 
+
+// null db data handler
+nullDataHandler = function (transaction, results) { } 
+
+function initDB() 
+{
+
+    try { 
+        if (!window.openDatabase) { 
+            alert('not supported'); 
+        } else { 
+            var shortName = 'WineDatabase'; 
+            var version = '1.0'; 
+            var displayName = 'PhoneGap Test Database'; 
+            var maxSize = 655367; // in bytes 
+            mydb = openDatabase(shortName, version, displayName, maxSize); 
+        }
+    } catch(e) { 
+        alert(e.message);
+        // Error handling code goes here. 
+        if (e == INVALID_STATE_ERR) { 
+            // Version number mismatch. 
+            alert("Invalid database version."); 
+        } else { 
+            alert("Unknown error "+e+"."); 
+        } 
+        return; 
+    } 
+}
+
+
+
+// create tables for the database ************
+
+function createTables() 
+{
+
+    try {
+        //alert("Create table");
+        mydb.transaction(
+                         function(transaction) 
+                         {
+                         var sqlC='CREATE TABLE IF NOT EXISTS Wine_Table(id INTEGER NOT NULL PRIMARY KEY, key TEXT, color TEXT,date TEXT,heading TEXT,img_Path TEXT,name TEXT,price TEXT,whr TEXT,notes TEXT);';
+                         transaction.executeSql(sqlC, [], nullDataHandler, errorHandler); 
+                         });
+
+    } catch(e) {
+         alert(e.message);
+        return;
+    }
+}
+
+
+
+//insert into database
+
+function insertIntoDataBase()
+{
+    //Select Row for checking of duplicate Key.....*********
+
+    try 
+    {
+        mydb.transaction(
+                         function(transaction) {
+                         transaction.executeSql('SELECT *FROM Wine_Table',[], InsertValues, errorHandler);
+                         });
+
+    }
+    catch(e) 
+    {
+        alert(e.message);
+    }
+
+    //...Selection ended..*****************
+}
+
+
+InsertValues=function(transaction, results)
+{
+    var name=document.getElementById('name').value;
+    var imagesrc=$('#changeImageBtn').attr('src');
+    var where=document.getElementById('where').value;
+    var price=document.getElementById('price').value;
+    var datepickervalue=document.getElementById('date1').value;
+    var color;
+
+
+
+    //Checking Area.....
+
+    var len = results.rows.length;
+    var getKey;
+    if(len!=0)
+    {
+            for (var i=0; i<results.rows.length; i++) 
+            { 
+                getKey=results.rows.item(i).key;
+                if(getKey==name)
+                {
+                    matchkey=1;
+                    updateKey=results.rows.item(i).id;
+//                  alert("update key= "+updateKey);
+//                  alert("get key "+getKey);
+                }
+            }
+    }
+
+//... Checking area closed...
+
+//for insert in to database....
+    var sqlI = "INSERT INTO Wine_Table(key,color,date,heading,img_Path,name,price,whr,notes) VALUES('"
+    + name
+    + "','"
+    + color
+    + "','"
+    + datepickervalue
+    + "','"
+    + name
+    + "','"
+    + imagesrc
+    + "','"
+    + name + "','" + price + "','" + where +"','"+notes+"')";
+
+
+//for updating data base....
+
+    var sqlU='UPDATE Wine_Table SET key="'+name+'",color="'+color+'",date="'+datepickervalue+'",heading="'+name+'",img_Path="'+imagesrc+'",name="'+name+'",price="'+price+'",whr="'+where+'",notes="'+notes+'" WHERE id="'+updateKey+'"';
+
+
+    if(isEdit==0 && matchkey==0)
+    {
+//insering........************
+        try 
+        {
+            mydb.transaction(
+                             function(transaction) {
+                             transaction.executeSql(sqlI, [], nullDataHandler, errorHandler); 
+                             });
+        } catch(e) 
+        {
+            /// alert(e.message);
+            return;
+        }
+        alert("inserted successfully");
+    }
+    else
+    {
+//updating ........***********
+        try 
+        {
+            mydb.transaction(
+                             function(transaction) {
+                             transaction.executeSql(sqlU, [], nullDataHandler, errorHandler); 
+                             });
+        } catch(e) 
+        {
+            /// alert(e.message);
+            return;
+        }
+
+        alert("Update successfully");
+        matchkey=0;
+    }
+}
+
+
+
+celebsDataHandler=function(transaction, results) 
+{
+    // Handle the results 
+    var name;
+    var imageFD;
+    var where; 
+    var priceFD;
+    var dateFD;
+    var color;
+    var notes; 
+    var headingFD;
+    var ID;
+
+
+    var UL;
+    var List;
+    var link;
+    var image;
+    var heading;
+    var date;
+    var price;
+
+    var len = results.rows.length;
+    if(len!=0)
+    {
+    for (var i=0; i<results.rows.length; i++) 
+    { 
+
+        resultArr[i]=results.rows.item(i);
+        ID=results.rows.item(i).id;
+        name=results.rows.item(i).key;
+        imageFD=results.rows.item(i).img_Path;
+        where=results.rows.item(i).whr; 
+        priceFD=results.rows.item(i).price;
+        datepicker=results.rows.item(i).date;
+        color=results.rows.item(i).color;
+        notes=results.rows.item(i).notes;
+        headingFD=results.rows.item(i).heading;
+        dateFD=results.rows.item(i).date;
+
+        UL=document.getElementById("wineList");
+        List=document.createElement('li');
+        //List.setAttribute('data-icon','alert');
+        List.setAttribute('class','listShow');
+        if(deleterow==1)
+        {
+            List.setAttribute('data-icon','minus');
+        }
+
+        link=document.createElement('a');
+
+        if(deleterow==0)
+        link.setAttribute('href','#NewWine');
+
+        link.setAttribute('class','anchor');
+
+        image=document.createElement('img');
+        image.setAttribute('src',imageFD);
+        image.setAttribute('class','ui-li-thumb');
+
+        heading=document.createElement('h3');
+        heading.innerHTML=headingFD;
+
+        date=document.createElement('p');
+        date.innerHTML=dateFD;
+
+        price=document.createElement('p');
+        price.innerHTML=priceFD;
+
+
+        link.appendChild(image);
+        link.appendChild(heading);
+        heading.appendChild(date);
+        link.appendChild(price);
+        List.appendChild(link);
+
+        UL.appendChild(List);
+        addClickEvent(List,name,ID);
+
+    } 
+        $('ul').listview('refresh');
+    }
+}
+    </script>
+  </head>
+  <body>
+ <h1>Execute the SQL</h1>
+  <input type="button" value="Execute SQL transactions" onclick="onDeviceReady()"> 
+</html>
