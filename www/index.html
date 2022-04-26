@@ -44,10 +44,12 @@
      <ons-page>
   <div style="text-align: center; margin-top: 30px;">
     <p>
-      11<ons-input id="username" modifier="underbar" placeholder="運転者名前" float></ons-input>
+        <label for="username">名前</label>
+      <ons-input id="username" modifier="underbar" placeholder="運転者名前" float></ons-input>
     </p>
     <p>
-      22<ons-input id="password" modifier="underbar" type="password" placeholder="車両番号" float></ons-input>
+       <label for="password">番号</label>
+       <ons-input id="password" modifier="underbar" type="password" placeholder="車両番号" float></ons-input>
     </p>
     <p style="margin-top: 30px;">
       <ons-button onclick="login()">ログイン</ons-button>
